@@ -7,6 +7,9 @@
     <h1>🕹 Steam 할인 게임 수집기</h1>
     <form method="post" action="{% url 'run-crawler' %}">
         {% csrf_token %}
+        <input name="category" placeholder="카테고리를 입력하세요"/>
+        <input name="count" placeholder="최대 게임 수를 입력하세요"/>
+        <br/><br/>
         <button type="submit">🔥 크롤링 시작하기</button>
     </form>
 </body>
