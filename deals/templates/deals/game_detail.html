@@ -1,0 +1,65 @@
+<!-- steam/templates/games/game_detail.html -->
+{% comment %} {% load humanize %} 
+<h2>{{ game.title }}</h2>
+<p>할인율: {{ game.discount_rate }}%</p>
+<p>원가: {{ game.original_price|intcomma }}원 | 할인가: {{ game.discounted_price|intcomma }}원</p>
+<p><a href="{{ game.link }}" target="_blank">Steam 페이지로 이동</a></p>
+
+<hr>
+<h3>리뷰</h3>
+<ul>
+  {% for review in reviews %}
+    <li>
+      평점: {{ review.rating }} / 5 <br>
+      내용: {{ review.content }}
+    </li>
+  {% empty %}
+    <li>리뷰가 아직 없습니다.</li>
+  {% endfor %}
+</ul> {% endcomment %}
+
+{% load humanize %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ game.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h2 class="card-title">{{ game.title }}</h2>
+      <p class="card-text">할인율: <span class="text-success fw-bold">{{ game.discount_percent }}%</span></p>
+      <p class="card-text">
+        가격: <del>{{ game.original_price|intcomma }}</del> → 
+        <strong class="text-danger">{{ game.discount_price|intcomma }}</strong> 원
+      </p>
+      <a href="{{ game.steam_link }}" target="_blank" class="btn btn-primary mt-2">Steam 페이지로 이동</a>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h4 class="card-title">리뷰</h4>
+      {% if reviews %}
+        <ul class="list-group list-group-flush">
+          {% for review in reviews %}
+            <li class="list-group-item">
+              <strong>⭐ 평점: {{ review.rating }} / 5</strong><br>
+              <span>{{ review.content }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">등록된 리뷰가 없습니다.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
+
