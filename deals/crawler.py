@@ -9,7 +9,6 @@ from .models import Game
 import urllib
 import time
 
-
 class NoSearchResult(Exception):
     """검색 결과가 없을 때 던지는 사용자 정의 예외"""
     pass
@@ -17,7 +16,6 @@ class NoSearchResult(Exception):
 def run_crawler(category="",count=50):
     category = urllib.parse.quote(category)
     address = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={category}&specials=1&category1=998&ndl=1"
-
 
     with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as driver:
         driver.get(address)
