@@ -9,11 +9,11 @@ from .models import Game
 import urllib
 import time
 
-def run_crawler():
-    category = "카드"
+def run_crawler(category="",count=50):
+    #category = "카드"
     category = urllib.parse.quote(category)
     address = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={category}&specials=1&category1=998&ndl=1"
-    count = 50
+    #count = 50
 
     with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as driver:
         driver.get(address)
