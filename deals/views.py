@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
-from .crawler import run_crawler
-from .models import Game
+from utils.steam_crawler import crawler
+from .models import Game, Visualization
 from django.http import HttpResponse
 
 
@@ -9,9 +9,10 @@ def index_view(request):
 
 def run_crawler_view(request):
     if request.method == 'POST':
+        Game.objects.all().delete()
         category = request.POST.get('category')
         count = int(request.POST.get('count'))
-        run_crawler(category, count)
+        crawler(category, count)
         return redirect('game-list')
     return HttpResponse("비정상적인 접근입니다.")
 
@@ -24,4 +25,6 @@ def game_detail(request, pk):
     reviews = game.reviews.all()
     return render(request, 'deals/game_detail.html', {'game': game, 'reviews':reviews})
 
-    
+def game_statistics(request):
+    vis = Visualization.objects.all()
+    return HttpResponse("여기는 시각화 페이지 입니다") # ... 적절한 template을 만들어 연결해야 함

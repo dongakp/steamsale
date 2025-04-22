@@ -10,4 +10,4 @@ class GameSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True,read_only=True)
     class Meta:
         model = Game
-        fields = ['id','title','original_price','discount_price','discount_percent','steam_link','reviews']
+        fields = ["id","title", "discount_rate", "original_price", "discounted_price", "review_pct", "review_count", "release_date", "tags", "link", "reviews"]

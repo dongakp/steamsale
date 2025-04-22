@@ -1,19 +1,13 @@
-#!/usr/bin/env python
-# coding: utf-8
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
+import pandas as pd
+import numpy as np
+import time
+import re
+from deals.models import Game
 
-# ## Import library
-
-# In[7]:
-
-def crawler():
-    import requests
-    from bs4 import BeautifulSoup
-    import urllib.parse
-    import pandas as pd
-    import numpy as np
-    import time
-    import re
-
+def crawler(category = "",count = 50):
     user_agent = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"}
 
     res = requests.get("https://store.steampowered.com/robots.txt", user_agent)
@@ -49,10 +43,8 @@ def crawler():
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
     }
 
-    category = ""
     encoded_category = urllib.parse.quote(category)
     search_url = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1"
-    count = 50
 
     res = requests.get(search_url, headers=headers)
     res.raise_for_status() # 요청 실패하면 바로 에러처리
@@ -124,4 +116,16 @@ def crawler():
     # 최종 정리할 컬럼
     df_final = df[["title", "discount_rate", "original_price", "discounted_price", "review_pct", "review_count", "release_date", "tags", "link"]]
 
-    return df_final
+    for _, row in df_final.iterrows():
+        Game.objects.create(
+            title=row['title'],
+            discount_rate=row['discount_rate'],
+            original_price=row['original_price'],
+            discounted_price=row['discounted_price'],
+            review_pct=row['review_pct'],
+            review_count=row['review_count'],
+            release_date=row['release_date'],  # 문자열이면 변환 필요
+            tags=row['tags'],
+            link=row['link'],
+        )
+    return None
