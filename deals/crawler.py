@@ -9,11 +9,13 @@ from .models import Game
 import urllib
 import time
 
-def run_crawler():
-    category = "카드"
+class NoSearchResult(Exception):
+    """검색 결과가 없을 때 던지는 사용자 정의 예외"""
+    pass
+
+def run_crawler(category="",count=50):
     category = urllib.parse.quote(category)
     address = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={category}&specials=1&category1=998&ndl=1"
-    count = 50
 
     with webdriver.Chrome(service=Service(ChromeDriverManager().install())) as driver:
         driver.get(address)
@@ -29,6 +31,12 @@ def run_crawler():
 
         # 데이터 수집
         xpath = '//*[@id="search_resultsRows"]/a[{}]'
+        try:
+            driver.find_element(By.XPATH, '//*[@id="search_resultsRows"]/a[1]')
+        except Exception:
+            driver.quit()
+            raise NoSearchResult("검색 결과가 없습니다.")
+        
         for i in range(1, count + 1):
             try:
                 element = driver.find_element(By.XPATH, xpath.format(i))
