@@ -7,6 +7,10 @@ import time
 import re
 from deals.models import Game
 
+class NoSearchResult(Exception):
+    """검색 결과가 없을 때 던지는 사용자 정의 예외"""
+    pass
+
 def crawler(category = "",count = 50):
     user_agent = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"}
 

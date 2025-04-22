@@ -5,6 +5,10 @@
 </head>
 <body>
     <h1>🕹 Steam 할인 게임 수집기</h1>
+    {% if message %}
+      <p style="color:red; font-weight: bold;">{{ message }}</p>
+    {% endif %}
+    
     <form method="post" action="{% url 'run-crawler' %}">
         {% csrf_token %}
         <input name="category" placeholder="카테고리를 입력하세요", autocomplete="off"/>
