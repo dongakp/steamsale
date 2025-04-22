@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Steam 할인 게임 크롤러</title>
+</head>
+<body>
+    <h1>🕹 Steam 할인 게임 수집기</h1>
+    <form method="post" action="{% url 'run-crawler' %}">
+        {% csrf_token %}
+        <button type="submit">🔥 크롤링 시작하기</button>
+    </form>
+</body>
+</html>
