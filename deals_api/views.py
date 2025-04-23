@@ -9,3 +9,7 @@ class GameListAPI(generics.ListCreateAPIView):
 class ReviewListAPI(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+class StatsListAPI(generics.ListCreateAPIView):
+    queryset = Stats.objects.all()
+    serializer_class = StatsSerializer

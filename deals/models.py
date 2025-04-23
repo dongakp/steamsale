@@ -20,6 +20,6 @@ class Review(models.Model):
     def __str__(self):
         return f"{self.game}: {self.rating}"
 
-class Visualization(models.Model):
-    title = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='static/images/')
+class Stats(models.Model):
+    discount_rate = models.FloatField()
+    discount_rate_density = models.FloatField()

@@ -8,5 +8,4 @@ urlpatterns = [
     path('games/', views.game_list, name='game-list'),
     path('run-crawler/', run_crawler_view, name='run-crawler'),
     path('games/<int:pk>/', views.game_detail, name='game-detail'),
-    path('games/statistics/', views.game_statistics, name='game-statistics'),
 ]
