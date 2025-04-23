@@ -23,8 +23,8 @@
                 {{ game.title }}
               </a>
             </h5>
-            <p class="card-text mb-1">할인율: {{ game.discount_percent }}%</p>
-            <p class="card-text">가격: <del>{{ game.original_price|intcomma }}</del> → <strong>{{ game.discount_price|intcomma }}</strong> 원</p>
+            <p class="card-text mb-1">할인율: {{ game.discount_rate }}%</p>
+            <p class="card-text">가격: <del>{{ game.original_price|intcomma }}</del>원 → <strong>{{ game.discounted_price|intcomma }}</strong> 원</p>
           </div>
         </div>
       </div>

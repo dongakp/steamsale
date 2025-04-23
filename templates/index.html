@@ -2,19 +2,39 @@
 <html>
 <head>
     <title>Steam 할인 게임 크롤러</title>
+    <style>
+      #loading {
+        display: none;
+        color: blue;
+        font-weight: bold;
+        margin-top: 20px;
+      }
+    </style>
+    <script>
+      function showLoading() {
+        document.getElementById("loading").style.display = "block";
+      }
+    </script>
 </head>
 <body>
     <h1>🕹 Steam 할인 게임 수집기</h1>
+    
     {% if message %}
       <p style="color:red; font-weight: bold;">{{ message }}</p>
     {% endif %}
-    
-    <form method="post" action="{% url 'run-crawler' %}">
+
+    <form method="post" action="{% url 'run-crawler' %}" onsubmit="showLoading()">
         {% csrf_token %}
-        <input name="category" placeholder="카테고리를 입력하세요", autocomplete="off"/>
-        <input name="count" placeholder="최대 게임 수를 입력하세요", autocomplete="off"/>
+        <input name="category" placeholder="카테고리를 입력하세요" autocomplete="off" />
+        <input name="count" placeholder="최대 게임 수를 입력하세요" autocomplete="off" />
         <br/><br/>
         <button type="submit">🔥 크롤링 시작하기</button>
     </form>
+
+    <div id="loading">
+        <img src="https://i.stack.imgur.com/kOnzy.gif" width="32" alt="loading" />
+        🚀 데이터 가져오는 중...
+      </div>
+      
 </body>
 </html>

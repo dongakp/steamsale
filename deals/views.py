@@ -11,7 +11,14 @@ def run_crawler_view(request):
     if request.method == 'POST':
         Game.objects.all().delete()
         category = request.POST.get('category')
-        count = int(request.POST.get('count'))
+        count = (request.POST.get('count'))
+        
+        # count 입력 없을 시 기본값 10
+        try:
+            count = int(count)
+        except (TypeError, ValueError):
+            count=10
+            
         try:
             crawler(category, count)
         except NoSearchResult:

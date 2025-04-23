@@ -31,12 +31,16 @@ def crawler(category = "",count = 50):
         review_pcts = next(
             (int(m.replace(".", "")) if "." not in m else float(m)
             for m in re.findall(r"([\d\.]+)%", text)),
-            None
+            0
         )
+        # 영어로 크롤링 시
+        # review_counts = next (
+        #     (int(m.replace(".", "")) for m in re.findall(r"([\d,]+)s*user revices", text)),
+        #     None
+        # )
         review_counts = next(
-            (int(m.replace(",", ""))
-            for m in re.findall(r"([\d,]+)\s*user reviews", text)),
-            None
+            (int(m.replace(",", "")) for m in re.findall(r"([\d,]+)개 중", text)),
+            0
         )
         return review_pcts, review_counts
 
@@ -48,15 +52,16 @@ def crawler(category = "",count = 50):
     }
 
     encoded_category = urllib.parse.quote(category)
-    search_url = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1"
+    # search_url = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1"
+    search_url = f'https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1&l=korean'
 
     res = requests.get(search_url, headers=headers)
     res.raise_for_status() # 요청 실패하면 바로 에러처리
+    print("응답 코드:", res.status_code)
     soup = BeautifulSoup(res.text, "html.parser")
 
     game_elements = soup.select("a.search_result_row")[:count]
     game_data = []
-
     for game in game_elements:
         title = game.select_one(".title").text.strip()
         link = game["href"]
@@ -85,7 +90,7 @@ def crawler(category = "",count = 50):
     # ---------------- 상세 페이지 크롤링 (출시일 + 태그) ----------------
     release_dates = []
     tags = []
-
+ 
     for game in game_data:
         resp = requests.get(game["link"], headers=headers)
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -104,6 +109,10 @@ def crawler(category = "",count = 50):
         
 
     print(f"크롤링 완료: {time.time() - start:.4f} sec")
+    
+    # ------------------- 검색 결과 없을시 error Raise----------------
+    if not game_data:
+        raise NoSearchResult('검색 결과가 없습니다.')
 
     # ------------------- DataFrame 생성 및 병합 -------------------
     for i, game in enumerate(game_data):
@@ -111,7 +120,8 @@ def crawler(category = "",count = 50):
         game["tags"]         = tags[i]
 
     df = pd.DataFrame(game_data)
-
+    print("컬럼 확인:", df.columns)
+    print(df.head())
     df["discount_rate"] = df["discount_pct"].apply(clean_discount)
     df["original_price"] = df["original_price"].apply(clean_price)
     df["discounted_price"] = df["final_price"].apply(clean_price)
