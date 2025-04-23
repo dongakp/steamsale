@@ -21,5 +21,4 @@ class Review(models.Model):
         return f"{self.game}: {self.rating}"
 
 class Stats(models.Model):
-    discount_rate = models.FloatField()
-    discount_rate_density = models.FloatField()
+    data = models.JSONField(default=dict)

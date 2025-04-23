@@ -11,7 +11,9 @@
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark"> <!--여기부터 Start Bootstrap navbar-->
         <a class="navbar-brand ps-3" href="#">Start Bootstrap</a>
@@ -109,49 +111,51 @@
                 <div class="container-fluid px-4">
                     <h1 class="mt-4">Dashboard</h1>
                     <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Dashboard Overview</li>
+                        <li class="breadcrumb-item active">시각화</li>
                     </ol>
 
-                    <!-- ✅ CARD SECTION START -->
-                    <div class="row">
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-primary text-white mb-4">
-                                <div class="card-body">Primary Card</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
-                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                </div>
+                    <!-- ✅ 차트 시각화 영역 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">할인율 분포</div>
+                                <div class="card-body"><canvas id="discountHistogram"></canvas></div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-warning text-white mb-4">
-                                <div class="card-body">Warning Card</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
-                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-success text-white mb-4">
-                                <div class="card-body">Success Card</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
-                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6">
-                            <div class="card bg-danger text-white mb-4">
-                                <div class="card-body">Danger Card</div>
-                                <div class="card-footer d-flex align-items-center justify-content-between">
-                                    <a class="small text-white stretched-link" href="#">View Details</a>
-                                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
-                                </div>
+                        <div class="col-xl-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">원가 vs 할인가</div>
+                                <div class="card-body"><canvas id="priceComparison"></canvas></div>
                             </div>
                         </div>
                     </div>
-                    <!-- ✅ CARD SECTION END -->
+
+                    <div class="row mb-4">
+                        <div class="col-xl-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">리뷰 수 vs 할인율 (버블)</div>
+                                <div class="card-body"><canvas id="reviewDiscountBubble"></canvas></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">태그별 게임 수</div>
+                                <div class="card-body"><canvas id="tagBarChart"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-xl-12">
+                            <div class="card">
+                                <div class="card-header">가성비 TOP 10</div>
+                                <div class="card-body"><canvas id="valueRanking"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ✅ 차트 시각화 영역 끝-->
+
+
 
                     <div class="row mb-4">
                         <div class="col-xl-6">
@@ -217,10 +221,87 @@
     <!-- ✅ Footer Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/scripts.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
     <script src="{% static 'assets/demo/chart-area-demo.js' %}"></script>
     <script src="{% static 'assets/demo/chart-bar-demo.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="{% static 'js/datatables-simple-demo.js' %}"></script>
+
+    <!-- ✅ Chart.js 코드 페이지 맨 아래에 위치하도록 이동 -->
+    <script>
+        const discountData = {{ discount_data|safe }};
+        const priceData = {{ price_data|safe }};
+        const bubbleData = {{ bubble_data|safe }};
+        const tagData = {{ tag_data|safe }};
+        const valueData = {{ value_data|safe }};
+
+        const baseOptions = {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        };
+
+        new Chart(document.getElementById('discountHistogram'), {
+            type: 'bar',
+            data: {
+                labels: discountData.labels,
+                datasets: [{ label: '게임 수', data: discountData.data, backgroundColor: 'rgba(54, 162, 235, 0.6)' }]
+            },
+            options: baseOptions
+        });
+
+        new Chart(document.getElementById('priceComparison'), {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: '게임 가격',
+                    data: priceData.x.map((x, i) => ({ x, y: priceData.y[i] })),
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                }]
+            },
+            options: {
+                ...baseOptions,
+                scales: {
+                    x: { title: { display: true, text: '원가' } },
+                    y: { title: { display: true, text: '할인가' } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('reviewDiscountBubble'), {
+            type: 'bubble',
+            data: {
+                datasets: bubbleData.data.map((item, i) => ({
+                    label: `게임 ${i + 1}`,
+                    data: [{ x: item.x, y: item.y, r: item.r }],
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                }))
+            },
+            options: {
+                ...baseOptions,
+                scales: {
+                    x: { title: { display: true, text: '할인율' } },
+                    y: { title: { display: true, text: '리뷰 수' } }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('tagBarChart'), {
+            type: 'bar',
+            data: {
+                labels: tagData.labels,
+                datasets: [{ label: '게임 수', data: tagData.data, backgroundColor: 'rgba(75, 192, 192, 0.6)' }]
+            },
+            options: baseOptions
+        });
+
+        new Chart(document.getElementById('valueRanking'), {
+            type: 'bar',
+            data: {
+                labels: valueData.labels,
+                datasets: [{ label: '가성비', data: valueData.data, backgroundColor: 'rgba(153, 102, 255, 0.6)' }]
+            },
+            options: baseOptions
+        });
+    </script>
 </body>
 </html>

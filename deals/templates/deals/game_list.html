@@ -8,11 +8,21 @@
 <body class="bg-light">
 
 <div class="container py-5">
-  <h1 class="mb-4 fw-bold">Steam 할인 게임 리스트</h1>
-  <form method="get" action="{% url 'dashboard' %}">
-      <button type="submit">통계 보기</button>
-  </form>
-  <br/>
+  <h1 class="fw-bold mb-3">Steam 할인 게임 리스트</h1>
+  <!-- 버튼 + 정렬 드롭다운 같은 줄에 배치 -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <form method="get" action="{% url 'dashboard' %}">
+      <button type="submit" class="btn btn-outline-dark">통계 보기</button>
+    </form>
+    <form method="get" action="">
+      <select name="sort" class="form-select w-auto" onchange="this.form.submit()">
+        <option value="">정렬 선택</option>
+        <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>낮은 가격순</option>
+        <option value="discount" {% if request.GET.sort == 'discount' %}selected{% endif %}>높은 가격순</option>
+        <option value="review" {% if request.GET.sort == 'review' %}selected{% endif %}>리뷰 많은순</option>
+      </select>
+    </form>
+  </div>
   <div class="row row-cols-1 g-4">
     {% for game in games %}
       <div class="col">
@@ -25,6 +35,7 @@
             </h5>
             <p class="card-text mb-1">할인율: {{ game.discount_rate }}%</p>
             <p class="card-text">가격: <del>{{ game.original_price|intcomma }}</del>원 → <strong>{{ game.discounted_price|intcomma }}</strong> 원</p>
+            <p class="card-text">리뷰 수: {{ game.review_count|intcomma }}개</p>
           </div>
         </div>
       </div>
