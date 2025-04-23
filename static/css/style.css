@@ -1,0 +1,66 @@
+/* body 스타일 */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+/* 헤더 */
+h1 {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.background-section {
+    background-size: contain; /* 요소 내부에 이미지를 완전히 맞춤 */
+    background-position: center; /* 이미지 중앙 정렬 */
+    background-repeat: no-repeat; /* 반복 방지 */
+    height: 100vh; /* 화면 높이를 꽉 채움 */
+    padding: 20px; /* 내부 여백 */
+}
+
+/* 검색 폼 */
+.search-form {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 에러 메시지 */
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* 레시피 카드 */
+.recipe-card {
+    margin: 20px 0;
+}
+
+.recipe-card h5 {
+    color: #007bff;
+}
+
+.search-btn {
+    min-width: 80px; /* 버튼의 최소 너비 */
+    height: 100%;   /* 입력 필드와 동일한 높이 유지 */
+}
+
+/* static/css/styles.css */
+.pagination-container {
+    margin-top: 20px;
+}
+.pagination .page-link {
+    color: #007bff;
+}
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+.pagination .page-link:hover {
+    background-color: #0056b3;
+    color: white;
+}
