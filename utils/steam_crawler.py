@@ -24,7 +24,7 @@ def crawler(category = "",count = 50):
         return int(s.replace("₩", "").replace(",", "").strip()) if s != "N/A" else 0
 
     def clean_date(s:str):  
-        return t.date() if (t := pd.to_datetime(s, errors='coerce')) == t else None
+        return t.date() if (t := pd.to_datetime(s, errors='coerce')) ==     t else None
 
     def parse_review_summary(html):
         text = BeautifulSoup(html or "", "html.parser").get_text(" ")
@@ -90,7 +90,7 @@ def crawler(category = "",count = 50):
     # ---------------- 상세 페이지 크롤링 (출시일 + 태그) ----------------
     release_dates = []
     tags = []
- 
+
     for game in game_data:
         resp = requests.get(game["link"], headers=headers)
         soup = BeautifulSoup(resp.text, "html.parser")

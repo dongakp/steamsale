@@ -2,6 +2,7 @@ from deals.models import Game, Review
 from .serializers import *
 from rest_framework import generics
 
+
 class GameListAPI(generics.ListCreateAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
@@ -9,3 +10,5 @@ class GameListAPI(generics.ListCreateAPIView):
 class ReviewListAPI(generics.ListCreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+

@@ -1,0 +1,55 @@
+<div id="layoutSidenav_nav">
+    <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+            <div class="nav">
+
+                <!-- 🎮 게임 수집기 폼 전체 -->
+                <div class="p-3 pt-4">
+                    <h6 class="text-white mb-2" style="white-space: nowrap;">
+                        <i class="fas fa-gamepad me-2"></i><strong>Steam 할인 게임 수집기</strong>
+                    </h6>
+                    <form method="post" action="{% url 'run-crawler' %}" onsubmit="showSidebarLoading();" class="mb-2">
+                        {% csrf_token %}
+                        <input type="text" name="category" class="form-control form-control-sm mb-2"
+                            placeholder="카테고리를 입력하세요" value="{{ request.POST.category|default:'' }}" required>
+                        <input type="text" name="count" class="form-control form-control-sm mb-2"
+                            placeholder="최대 게임 수를 입력하세요" value="{{ request.POST.count|default:'' }}">
+                        <button type="submit" class="btn btn-outline-light w-100 btn-sm">
+                            🔥 크롤링 시작하기
+                        </button>
+                    </form>
+
+                    <!-- 🔁 로딩 인디케이터 -->
+                    <div id="sidebar-loading-indicator" class="text-info small" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-1 text-light"></span>
+                        🚀 데이터 가져오는 중...
+                    </div>
+
+                    <!-- ⚠️ 오류 메시지 -->
+                    {% if message %}
+                    <div class="alert alert-warning mt-2 py-1 px-2 text-center small">
+                        {{ message }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr class="bg-secondary my-2">
+
+                <!-- 기존 메뉴들 -->
+                <a class="nav-link" href="{% url 'dashboard' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                    대시보드
+                </a>
+                <a class="nav-link" href="{% url 'charts' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
+                    통계/차트
+                </a>
+                <a class="nav-link" href="{% url 'game-list' %}">
+                    <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                    게임 목록
+                </a>
+
+            </div>
+        </div>
+    </nav>
+</div>

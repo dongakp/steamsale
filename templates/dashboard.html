@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+{% block title %}Steam Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Steam Sale Dashboard</h1>
+  <ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">Dashboard</li>
+  </ol>
+
+  <div class="row">
+    <!-- Line Chart -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-chart-line me-1"></i> 월별 출시 게임 수
+        </div>
+        <div class="card-body">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-chart-bar me-1"></i> 할인율 구간별 게임 수
+        </div>
+        <div class="card-body">
+          <canvas id="discountChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scatter Chart -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-bullseye me-1"></i> 출시일 vs 할인율
+        </div>
+        <div class="card-body">
+          <canvas id="scatterChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Word Cloud -->
+    <div class="col-lg-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-cloud me-1"></i> 인기 태그 Word Cloud
+        </div>
+        <div class="card-body text-center">
+          <img src="{% static 'images/word_cloud.png' %}" alt="워드 클라우드" class="img-fluid">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card mb-4">
+    <div class="card-header">
+      📋 크롤링된 게임 목록
+    </div>
+    <div class="card-body">
+      <table id="gameTable" class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>제목</th>
+            <th>할인율</th>
+            <th>출시일</th>
+            <th>태그</th>
+            <th>평점</th>
+            <th>리뷰 수</th>
+            <th>가격</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for game in games %}
+          <tr>
+            <td>{{ game.title }}</td>
+            <td>{{ game.discount_rate }}%</td>
+            <td>{{ game.release_date }}</td>
+            <td>{{ game.tags }}</td>
+            <td>{{ game.review_pct }}%</td>
+            <td>{{ game.review_count|intcomma }}</td>
+            <td>₩{{ game.discounted_price|intcomma }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+<script>
+  fetch("/visualization-data/")
+    .then(res => res.json())
+    .then(data => {
+      // Line Chart (월별 출시 수)
+      new Chart(document.getElementById("monthlyChart"), {
+        type: "line",
+        data: {
+          labels: data.monthly_release_spline.x.map(x => `${x}월`),
+          datasets: [{
+            label: "게임 수",
+            data: data.monthly_release_spline.y,
+            borderColor: "rgba(78, 115, 223, 1)",
+            backgroundColor: "rgba(78, 115, 223, 0.1)",
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: "월별 출시 게임 수" },
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: "게임 수" }
+            }
+          }
+        }
+      });
+
+      // Bar Chart (할인율 분포)
+      new Chart(document.getElementById("discountChart"), {
+        type: "bar",
+        data: {
+          labels: data.discount_distribution.map(d => d.range),
+          datasets: [{
+            label: "게임 수",
+            data: data.discount_distribution.map(d => d.count),
+            backgroundColor: "rgba(28, 200, 138, 0.6)"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: "할인율 구간별 게임 수" },
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: "게임 수" }
+            }
+          }
+        }
+      });
+
+      // Scatter Chart (출시일 vs 할인율)
+      const scatterData = data.release_discount_scatter.map(d => ({
+        x: luxon.DateTime.fromISO(d.release_date).toJSDate(), 
+        y: d.discount_rate
+      }));
+
+      new Chart(document.getElementById("scatterChart"), {
+        type: "scatter",
+        data: {
+          datasets: [{
+            label: "출시일 vs 할인율",
+            data: scatterData,
+            backgroundColor: "rgba(255, 99, 132, 0.6)"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: "출시일 vs 할인율" },
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              type: "time",
+              time: {
+                unit: "month",
+                displayFormats: {
+                  month: "yyyy년 M월"
+                }
+              },
+              title: {
+                display: true,
+                text: "출시일"
+              },
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 8
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: "할인율 (%)" }
+            }
+          }
+
+        }
+      });
+    });
+
+  // 테이블
+  window.addEventListener('DOMContentLoaded', () => {
+    $('#gameTable').DataTable();
+  });
+</script>
+{% endblock %}
