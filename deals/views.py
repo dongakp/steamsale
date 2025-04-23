@@ -38,3 +38,6 @@ def game_detail(request, pk):
 def game_statistics(request):
     vis = Visualization.objects.all()
     return HttpResponse("여기는 시각화 페이지 입니다") # ... 적절한 template을 만들어 연결해야 함
+
+def index_alt_view(request):  # 양민식
+    return render(request, 'index 복사본.html')
