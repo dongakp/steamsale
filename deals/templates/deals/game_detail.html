@@ -31,10 +31,10 @@
   <div class="card shadow-sm mb-4">
     <div class="card-body">
       <h2 class="card-title">{{ game.title }}</h2>
-      <p class="card-text">할인율: <span class="text-success fw-bold">{{ game.discount_percent }}%</span></p>
+      <p class="card-text">할인율: <span class="text-success fw-bold">{{ game.discount_rate }}%</span></p>
       <p class="card-text">
-        가격: <del>{{ game.original_price|intcomma }}</del> → 
-        <strong class="text-danger">{{ game.discount_price|intcomma }}</strong> 원
+        가격: <del>{{ game.original_price|intcomma }}</del>원 → 
+        <strong class="text-danger">{{ game.discounted_price|intcomma }}</strong> 원
       </p>
       <a href="{{ game.steam_link }}" target="_blank" class="btn btn-primary mt-2">Steam 페이지로 이동</a>
     </div>
