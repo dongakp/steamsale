@@ -1,30 +1,30 @@
-# 전처리 함수 정의
+import requests
+from bs4 import BeautifulSoup
+import urllib.parse
 import pandas as pd
-def clean_discount(s: str) -> int: 
-    return int(s.replace('%', '').replace('-', '').strip())
-
-def clean_price(s: str) -> int: 
-    return int(s.replace("₩", "").replace(",", "").strip()) if s != "N/A" else 0
-
-def clean_date(s:str) -> int:  
-    return t.date() if (t := pd.to_datetime(s, errors='coerce')) == t else None
+import numpy as np
+import time
+import re
+from deals.models import Game
 
 class NoSearchResult(Exception):
-    """검색 결과가 없을 때 던지는 예외"""
+    """검색 결과가 없을 때 던지는 사용자 정의 예외"""
     pass
 
-def crawler(category: str, count: int):
-    import requests
-    from bs4 import BeautifulSoup
-    import urllib.parse
-    import pandas as pd
-    import numpy as np
-    import time
-    import re
-
+def crawler(category = "",count = 50):
     user_agent = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"}
 
     res = requests.get("https://store.steampowered.com/robots.txt", user_agent)
+
+    # 전처리 함수 정의의
+    def clean_discount(s): 
+        return int(s.replace('%', '').replace('-', '').strip())
+
+    def clean_price(s): 
+        return int(s.replace("₩", "").replace(",", "").strip()) if s != "N/A" else 0
+
+    def clean_date(s:str):  
+        return t.date() if (t := pd.to_datetime(s, errors='coerce')) == t else None
 
     def parse_review_summary(html):
         text = BeautifulSoup(html or "", "html.parser").get_text(" ")
@@ -33,9 +33,13 @@ def crawler(category: str, count: int):
             for m in re.findall(r"([\d\.]+)%", text)),
             0
         )
+        # 영어로 크롤링 시
+        # review_counts = next (
+        #     (int(m.replace(".", "")) for m in re.findall(r"([\d,]+)s*user revices", text)),
+        #     None
+        # )
         review_counts = next(
-            (int(m.replace(",", ""))
-            for m in re.findall(r"([\d,]+)\s*user reviews", text)),
+            (int(m.replace(",", "")) for m in re.findall(r"([\d,]+)개 중", text)),
             0
         )
         return review_pcts, review_counts
@@ -47,18 +51,17 @@ def crawler(category: str, count: int):
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
     }
 
-    category = ""
     encoded_category = urllib.parse.quote(category)
-    search_url = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1"
-    count = 50
+    # search_url = f"https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1"
+    search_url = f'https://store.steampowered.com/search/?sort_by=Reviews_DESC&term={encoded_category}&specials=1&category1=998&ndl=1&l=korean'
 
     res = requests.get(search_url, headers=headers)
     res.raise_for_status() # 요청 실패하면 바로 에러처리
+    print("응답 코드:", res.status_code)
     soup = BeautifulSoup(res.text, "html.parser")
 
     game_elements = soup.select("a.search_result_row")[:count]
     game_data = []
-
     for game in game_elements:
         title = game.select_one(".title").text.strip()
         link = game["href"]
@@ -87,7 +90,7 @@ def crawler(category: str, count: int):
     # ---------------- 상세 페이지 크롤링 (출시일 + 태그) ----------------
     release_dates = []
     tags = []
-
+ 
     for game in game_data:
         resp = requests.get(game["link"], headers=headers)
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -106,8 +109,8 @@ def crawler(category: str, count: int):
         
 
     print(f"크롤링 완료: {time.time() - start:.4f} sec")
-
-    # ------------------- 검색 결과 없을시 error Raise--------------
+    
+    # ------------------- 검색 결과 없을시 error Raise----------------
     if not game_data:
         raise NoSearchResult('검색 결과가 없습니다.')
 
@@ -117,7 +120,8 @@ def crawler(category: str, count: int):
         game["tags"]         = tags[i]
 
     df = pd.DataFrame(game_data)
-
+    print("컬럼 확인:", df.columns)
+    print(df.head())
     df["discount_rate"] = df["discount_pct"].apply(clean_discount)
     df["original_price"] = df["original_price"].apply(clean_price)
     df["discounted_price"] = df["final_price"].apply(clean_price)
@@ -126,4 +130,16 @@ def crawler(category: str, count: int):
     # 최종 정리할 컬럼
     df_final = df[["title", "discount_rate", "original_price", "discounted_price", "review_pct", "review_count", "release_date", "tags", "link"]]
 
-    return df_final
+    for _, row in df_final.iterrows():
+        Game.objects.create(
+            title=row['title'],
+            discount_rate=row['discount_rate'],
+            original_price=row['original_price'],
+            discounted_price=row['discounted_price'],
+            review_pct=row['review_pct'],
+            review_count=row['review_count'],
+            release_date=row['release_date'],  # 문자열이면 변환 필요
+            tags=row['tags'],
+            link=row['link'],
+        )
+    return None
