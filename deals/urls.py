@@ -12,4 +12,5 @@ urlpatterns = [
     path('games/statistics/', views.game_statistics, name='game-statistics'),
     path("visualization-data/", visualization_json_view, name="visualization-json"),
     path('charts/', charts_view, name='charts'),
+
 ]
