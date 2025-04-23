@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # ✅ Use a non-interactive backend (safe for servers)
 import os
 import django
 import pandas as pd
@@ -76,4 +78,24 @@ if not df.empty:
     print("✅ 모든 시각화 이미지 저장 완료!")
 else:
     print("데이터가 없습니다. 시각화를 건너뜁니다.")
+
+
+# ---------------- 차트 데이터----------------
+def generate_chart_data():
+    from deals.models import Game
+    import pandas as pd
+
+    qs = Game.objects.all().values()
+    df = pd.DataFrame(qs)
+
+    if df.empty:
+        return {"labels": [], "data": []}
+
+    top_games = df.sort_values(by="review_count", ascending=False).head(10)
+
+    return {
+        "labels": top_games["title"].tolist(),
+        "data": top_games["review_count"].tolist()
+    }
+
 

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import run_crawler_view, index_view, index_alt_view
+from .views import run_crawler_view, index_view, index_alt_view, chart_data_api
 
 urlpatterns = [
     path('', index_view, name='index'),
@@ -8,4 +8,6 @@ urlpatterns = [
     path('games/', views.game_list, name='game-list'),
     path('run-crawler/', run_crawler_view, name='run-crawler'),
     path('games/<int:pk>/', views.game_detail, name='game-detail'),
+    path('games/statistics/', views.game_statistics, name='game-statistics'),
+    path('api/chart-data/', chart_data_api, name='chart-data-api')
 ]
