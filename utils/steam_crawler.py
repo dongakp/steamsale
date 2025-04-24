@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import time
 import re
+from deals.models import Game
 
 # ------------------- 전처리 함수 정의 -------------------
 def clean_discount(s: str) -> int: 
@@ -22,6 +23,7 @@ class NoSearchResult(Exception):
 
 # ------------------- 크롤러 메인 함수 -------------------
 def crawler(category: str, count: int):
+    start = time.time()
     user_agent = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36"
     }
@@ -88,7 +90,7 @@ def crawler(category: str, count: int):
         ][:4]
         tags.append(",".join(tags_list))
 
-    print(f"크롤링 완료: {time.time() - start := time.time():.4f} sec")
+    print(f"크롤링 완료: {time.time() - start:.4f} sec")
 
     for i, game in enumerate(game_data):
         game["release_date"] = release_dates[i]
@@ -105,4 +107,16 @@ def crawler(category: str, count: int):
         "review_pct", "review_count", "release_date", "tags", "link"
     ]]
 
+    for _, row in df_final.iterrows():
+        Game.objects.create(
+            title=row['title'],
+            discount_rate=row['discount_rate'],
+            original_price=row['original_price'],
+            discounted_price=row['discounted_price'],
+            review_pct=row['review_pct'],
+            review_count=row['review_count'],
+            release_date=row['release_date'],  # 문자열이면 변환 필요
+            tags=row['tags'],
+            link=row['link'],
+        )
     return df_final
