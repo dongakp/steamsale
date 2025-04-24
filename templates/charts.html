@@ -31,7 +31,11 @@
   <div class="card mb-4">
     <div class="card-header">☁️ 인기 태그 Word Cloud</div>
     <div class="card-body text-center">
-      <img src="{% static 'images/word_cloud.png' %}" class="img-fluid" alt="워드 클라우드">
+      {% if games %}
+        <img src="{% static 'images/word_cloud.png' %}?v={{ timestamp }}" class="img-fluid" alt="워드 클라우드">
+      {% else %}
+        <p class="text-muted">⚠️ 워드 클라우드는 게임 데이터가 있어야 표시됩니다.</p>
+      {% endif %}
     </div>
   </div>
 </div>

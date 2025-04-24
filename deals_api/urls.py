@@ -7,5 +7,4 @@ from .views import *
 urlpatterns = [
     path('game/', GameListAPI.as_view(), name='api-game-list'),
     path('review/', ReviewListAPI.as_view(), name='api-review-list'),
-    path('stat/', StatsListAPI.as_view(), name='api-stat-list'),
 ]
