@@ -8,8 +8,7 @@ from django.conf import settings
 import subprocess
 import os
 from django.utils import timezone
-
-
+import sys
 
 def index_view(request):
     return render(request, "index.html")
@@ -41,9 +40,9 @@ def run_crawler_view(request):
 
         try:
             crawler(category, count)
-            subprocess.call(["python", os.path.join(settings.BASE_DIR, "utils", "steam_visualize.py")])
-
             # ✅ 크롤링 성공 시 워드클라우드 자동 생성
+            if "test" not in sys.argv:
+                subprocess.call(["python", os.path.join(settings.BASE_DIR, "utils", "steam_visualize.py")])
             data = get_visualization_data()
             save_wordcloud(data["wordcloud_data"])
 
