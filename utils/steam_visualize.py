@@ -107,7 +107,11 @@ def save_wordcloud(tag_counts):
     print(f"[✅] 워드클라우드 저장 완료 → {output_path}")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
+    import django
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "steamsale.settings")
+    django.setup()
+
     data = get_visualization_data()
     from pprint import pprint
     pprint(data)
