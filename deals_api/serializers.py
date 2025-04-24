@@ -6,11 +6,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['game','rating','content']
         
-class StatsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stats
-        fields = ['discount_rate','discount_rate_density']
-        
 class GameSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True,read_only=True)
     class Meta:

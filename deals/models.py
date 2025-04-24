@@ -7,18 +7,16 @@ class Game(models.Model):
     discounted_price = models.IntegerField()
     review_pct = models.IntegerField()
     review_count = models.IntegerField()
-    release_date = models.DateField(null=True, blank=True)
+    release_date = models.DateField(null=True, blank=True) #release_date에 null 허용하게 
     tags = models.TextField(null=True, blank=True)
     link = models.CharField(max_length=200)
-
     def __str__(self):
         return f"{self.title}: {self.discounted_price} (-{self.discount_rate}%%)"
-
+    
 class Review(models.Model):
-    game = models.ForeignKey(Game, related_name='reviews', on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, related_name = 'reviews', on_delete = models.CASCADE)
     rating = models.CharField(max_length=10)
     content = models.CharField(max_length=1000)
-
     def __str__(self):
         return f"{self.game}: {self.rating}"
 
@@ -26,7 +24,6 @@ class Visualization(models.Model):
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to='static/images/')
 
+
 class Stats(models.Model):
-    discount_rate = models.FloatField()
-    discount_rate_density = models.FloatField()
-    data = models.JSONField(default=dict, blank=True, null=True)
+    data = models.JSONField(default=dict)
